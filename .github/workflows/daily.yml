@@ -1,4 +1,4 @@
-name: AI Fitness Coach
+name: AI Fitness Coach Stable
 
 on:
   workflow_dispatch:
@@ -10,38 +10,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Generate AI Fitness Plan
+      - name: Generate Plan
         run: |
           set -e
 
-          # 生成随机训练风格
           STYLE=$((RANDOM % 3))
 
           if [ "$STYLE" -eq 0 ]; then
-            TRAIN="力量训练：深蹲4组×10次，壶铃摆荡4组×15次，哑铃推举4组×10次"
+            TRAIN="力量训练：深蹲4×10，壶铃摆荡4×15，哑铃推举4×10"
           elif [ "$STYLE" -eq 1 ]; then
-            TRAIN="有氧训练：骑行40分钟，间歇冲刺6组×1分钟，核心训练平板3组×60秒"
+            TRAIN="有氧训练：骑行40分钟，间歇冲刺6×1分钟，核心平板3×60秒"
           else
             TRAIN="恢复训练：轻松骑行20分钟，全身拉伸15分钟，核心激活10分钟"
           fi
 
-          # 双语励志（中英互译风格）
-          QUOTES=(
-            "Discipline is choosing what you want most over what you want now. / 自律是选择你最想要的，而不是你现在想要的。"
-            "You don’t rise to the level of your goals, you fall to the level of your systems. / 你不会达到目标的高度，而是会跌落到系统的水平。"
-            "Small daily improvements lead to stunning results. / 每日微小进步，终将带来惊人成果。"
-            "Pain is temporary, pride is forever. / 痛苦是暂时的，骄傲是永恒的。"
-          )
+          QUOTE_1="Discipline is choosing what you want most over what you want now."
+          QUOTE_2="Small daily improvements lead to stunning results."
+          QUOTE_3="Pain is temporary, pride is forever."
 
-          QUOTE=${QUOTES[$RANDOM % ${#QUOTES[@]}]}
+          QUOTES="$QUOTE_1|自律是选择你最想要的，而不是你现在想要的。;$QUOTE_2|每天微小进步终将带来巨大变化。;$QUOTE_3|痛苦是暂时的，骄傲是永恒的。"
+
+          SELECTED=$(echo "$QUOTES" | tr ';' '\n' | shuf -n 1)
+
+          EN=$(echo "$SELECTED" | cut -d'|' -f1)
+          CN=$(echo "$SELECTED" | cut -d'|' -f2)
 
           MSG="🏋️ 今日AI训练计划
 
-🔥 训练内容（60分钟）
-${TRAIN}
+训练内容（60分钟）
+$TRAIN
 
-📌 励志语录
-${QUOTE}"
+励志语录
+EN: $EN
+CN: $CN"
 
           curl -s "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=53ab5af5-b293-4dcc-ad40-fc6508c48924" \
             -H "Content-Type: application/json" \
